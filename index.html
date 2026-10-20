@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>日本旅遊記帳</title>
+
+  <!-- Supabase JavaScript SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f3f4f6;
+      color: #1f2937;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Noto Sans TC",
+        "Microsoft JhengHei",
+        sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      text-align: center;
+      color: #111827;
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      text-align: center;
+      color: #6b7280;
+    }
+
+    .card {
+      margin-bottom: 20px;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label,
+    legend {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 600;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 16px;
+      background: #fff;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    fieldset {
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .radio-group,
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .radio-item,
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .radio-item:hover,
+    .checkbox-item:hover {
+      background: #f9fafb;
+    }
+
+    .radio-item input,
+    .checkbox-item input {
+      width: auto;
+      margin: 0;
+    }
+
+    .submit-button {
+      width: 100%;
+      padding: 13px;
+      border: 0;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .submit-button:hover {
+      background: #1d4ed8;
+    }
+
+    .submit-button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .message {
+      min-height: 24px;
+      margin-top: 12px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .message.success {
+      color: #15803d;
+    }
+
+    .message.error {
+      color: #dc2626;
+    }
+
+    .expense-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .expense-item {
+      padding: 15px;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      background: #fafafa;
+    }
+
+    .expense-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .expense-title {
+      font-weight: 700;
+    }
+
+    .expense-amount {
+      color: #b91c1c;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .expense-detail {
+      margin: 4px 0;
+      color: #4b5563;
+      font-size: 14px;
+    }
+
+    .empty {
+      color: #6b7280;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .loading {
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .summary-box {
+      padding: 14px;
+      border-radius: 10px;
+      background: #eff6ff;
+      text-align: center;
+    }
+
+    .summary-label {
+      display: block;
+      margin-bottom: 5px;
+      color: #4b5563;
+      font-size: 14px;
+    }
+
+    .summary-value {
+      color: #1d4ed8;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 12px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .radio-group,
+      .checkbox-group {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .expense-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <h1>日本旅遊記帳</h1>
+    <p class="subtitle">記錄這四天旅遊期間的支出</p>
+
+    <!-- 新增支出表單 -->
+    <section class="card">
+      <h2>新增支出</h2>
+
+      <form id="expenseForm">
+        <div class="form-group">
+          <label for="travelDate">日期</label>
+          <input
+            type="date"
+            id="travelDate"
+            name="travelDate"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <fieldset>
+            <legend>你是誰？</legend>
+
+            <div class="radio-group">
+              <label class="radio-item">
+                <input type="radio" name="payer" value="康康" required />
+                <span>康康</span>
+              </label>
+
+              <label class="radio-item">
+                <input type="radio" name="payer" value="阿優" />
+                <span>阿優</span>
+              </label>
+
+              <label class="radio-item">
+                <input type="radio" name="payer" value="伯伯" />
+                <span>伯伯</span>
+              </label>
+
+              <label class="radio-item">
+                <input type="radio" name="payer" value="蘿拉" />
+                <span>蘿拉</span>
+              </label>
+
+              <label class="radio-item">
+                <input type="radio" name="payer" value="Leo" />
+                <span>Leo</span>
+              </label>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="form-group">
+          <label for="currency">付款幣別</label>
+          <select id="currency" name="currency" required>
+            <option value="">請選擇幣別</option>
+            <option value="JPY">日幣 JPY</option>
+            <option value="TWD">台幣 TWD</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="amount">付款金額</label>
+          <input
+            type="number"
+            id="amount"
+            name="amount"
+            min="0.01"
+            step="0.01"
+            placeholder="例如：3200"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <fieldset>
+            <legend>誰一起分攤？</legend>
+
+            <div class="checkbox-group">
+              <label class="checkbox-item">
+                <input type="checkbox" name="sharedBy" value="康康" />
+                <span>康康</span>
+              </label>
+
+              <label class="checkbox-item">
+                <input type="checkbox" name="sharedBy" value="阿優" />
+                <span>阿優</span>
+              </label>
+
+              <label class="checkbox-item">
+                <input type="checkbox" name="sharedBy" value="伯伯" />
+                <span>伯伯</span>
+              </label>
+
+              <label class="checkbox-item">
+                <input type="checkbox" name="sharedBy" value="蘿拉" />
+                <span>蘿拉</span>
+              </label>
+
+              <label class="checkbox-item">
+                <input type="checkbox" name="sharedBy" value="小威" />
+                <span>小威</span>
+              </label>
+
+              <label class="checkbox-item">
+                <input type="checkbox" name="sharedBy" value="Leo" />
+                <span>Leo</span>
+              </label>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="form-group">
+          <label for="description">支出說明</label>
+          <textarea
+            id="description"
+            name="description"
+            placeholder="例如：晚餐、車票、便利商店"
+          ></textarea>
+        </div>
+
+        <button
+          type="submit"
+          id="submitButton"
+          class="submit-button"
+        >
+          儲存支出
+        </button>
+
+        <div id="formMessage" class="message"></div>
+      </form>
+    </section>
+
+    <!-- 支出統計 -->
+    <section class="card">
+      <h2>目前統計</h2>
+
+      <div class="summary">
+        <div class="summary-box">
+          <span class="summary-label">日幣總額</span>
+          <span id="totalJPY" class="summary-value">¥0</span>
+        </div>
+
+        <div class="summary-box">
+          <span class="summary-label">台幣總額</span>
+          <span id="totalTWD" class="summary-value">NT$0</span>
+        </div>
+      </div>
+
+      <button
+        id="refreshButton"
+        class="submit-button"
+        type="button"
+      >
+        重新整理紀錄
+      </button>
+    </section>
+
+    <!-- 支出紀錄 -->
+    <section class="card">
+      <h2>支出紀錄</h2>
+
+      <div id="expenseList" class="expense-list">
+        <div class="loading">讀取中...</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /*
+     * 請替換成你的 Supabase 設定
+     */
+    const SUPABASE_URL = "https://bcgbzbxfxtvkdqxqcjec.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjZ2J6YnhmeHR2a2RxeHFjamVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0NTg2MjIsImV4cCI6MjEwODAzNDYyMn0.dHVpm99-09HvYAmfP_73kDjl66oOUu8bKOMlkuE8XFU";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+    const expenseForm = document.getElementById("expenseForm");
+    const submitButton = document.getElementById("submitButton");
+    const refreshButton = document.getElementById("refreshButton");
+    const formMessage = document.getElementById("formMessage");
+    const expenseList = document.getElementById("expenseList");
+    const totalJPY = document.getElementById("totalJPY");
+    const totalTWD = document.getElementById("totalTWD");
+    const travelDateInput = document.getElementById("travelDate");
+
+    /*
+     * 預設日期為今天
+     */
+    const today = new Date();
+    const todayString = today.toISOString().split("T")[0];
+    travelDateInput.value = todayString;
+
+    /*
+     * 避免支出說明中的特殊字元造成 HTML 問題
+     */
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    /*
+     * 顯示表單訊息
+     */
+    function showMessage(message, type = "") {
+      formMessage.textContent = message;
+      formMessage.className = `message ${type}`;
+    }
+
+    /*
+     * 格式化日期
+     */
+    function formatDate(dateString) {
+      if (!dateString) return "";
+
+      const date = new Date(`${dateString}T00:00:00`);
+
+      return date.toLocaleDateString("zh-TW", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      });
+    }
+
+    /*
+     * 格式化金額
+     */
+    function formatAmount(amount, currency) {
+      const number = Number(amount);
+
+      if (currency === "JPY") {
+        return `¥${number.toLocaleString("ja-JP")}`;
+      }
+
+      return `NT$${number.toLocaleString("zh-TW")}`;
+    }
+
+    /*
+     * 載入所有支出紀錄
+     */
+    async function loadExpenses() {
+      expenseList.innerHTML = `<div class="loading">讀取中...</div>`;
+
+      const { data, error } = await supabaseClient
+        .from("expenses")
+        .select("*")
+        .order("travel_date", { ascending: false })
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error(error);
+
+        expenseList.innerHTML = `
+          <div class="empty">
+            讀取資料失敗：${escapeHtml(error.message)}
+          </div>
+        `;
+
+        return;
+      }
+
+      renderExpenses(data || []);
+    }
+
+    /*
+     * 顯示支出紀錄
+     */
+    function renderExpenses(expenses) {
+      if (expenses.length === 0) {
+        expenseList.innerHTML = `
+          <div class="empty">
+            目前還沒有支出紀錄
+          </div>
+        `;
+
+        updateSummary([]);
+        return;
+      }
+
+      expenseList.innerHTML = expenses
+        .map((expense) => {
+          const sharedBy = Array.isArray(expense.shared_by)
+            ? expense.shared_by.join("、")
+            : "";
+
+          const description = expense.description
+            ? escapeHtml(expense.description)
+            : "未填寫";
+
+          return `
+            <div class="expense-item">
+              <div class="expense-header">
+                <div class="expense-title">
+                  ${escapeHtml(formatDate(expense.travel_date))}
+                  · ${escapeHtml(expense.payer)} 付款
+                </div>
+
+                <div class="expense-amount">
+                  ${escapeHtml(
+                    formatAmount(expense.amount, expense.currency)
+                  )}
+                </div>
+              </div>
+
+              <div class="expense-detail">
+                幣別：${expense.currency === "JPY" ? "日幣" : "台幣"}
+              </div>
+
+              <div class="expense-detail">
+                分攤者：${escapeHtml(sharedBy || "未填寫")}
+              </div>
+
+              <div class="expense-detail">
+                說明：${description}
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+      updateSummary(expenses);
+    }
+
+    /*
+     * 更新日幣與台幣總額
+     */
+    function updateSummary(expenses) {
+      const jpyTotal = expenses
+        .filter((expense) => expense.currency === "JPY")
+        .reduce((sum, expense) => sum + Number(expense.amount), 0);
+
+      const twdTotal = expenses
+        .filter((expense) => expense.currency === "TWD")
+        .reduce((sum, expense) => sum + Number(expense.amount), 0);
+
+      totalJPY.textContent = `¥${jpyTotal.toLocaleString("ja-JP")}`;
+      totalTWD.textContent = `NT$${twdTotal.toLocaleString("zh-TW")}`;
+    }
+
+    /*
+     * 儲存新支出
+     */
+    expenseForm.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const travelDate = document.getElementById("travelDate").value;
+      const currency = document.getElementById("currency").value;
+      const amount = Number(document.getElementById("amount").value);
+      const description = document
+        .getElementById("description")
+        .value
+        .trim();
+
+      const payerElement = document.querySelector(
+        'input[name="payer"]:checked'
+      );
+
+      const sharedByElements = document.querySelectorAll(
+        'input[name="sharedBy"]:checked'
+      );
+
+      const payer = payerElement ? payerElement.value : "";
+
+      const sharedBy = Array.from(sharedByElements).map(
+        (element) => element.value
+      );
+
+      if (!travelDate) {
+        showMessage("請選擇日期", "error");
+        return;
+      }
+
+      if (!payer) {
+        showMessage("請選擇付款人", "error");
+        return;
+      }
+
+      if (!currency) {
+        showMessage("請選擇幣別", "error");
+        return;
+      }
+
+      if (!amount || amount <= 0) {
+        showMessage("請輸入正確的金額", "error");
+        return;
+      }
+
+      if (sharedBy.length === 0) {
+        showMessage("請至少選擇一位分攤者", "error");
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = "儲存中...";
+      showMessage("");
+
+      const { error } = await supabaseClient
+        .from("expenses")
+        .insert({
+          travel_date: travelDate,
+          payer: payer,
+          currency: currency,
+          amount: amount,
+          shared_by: sharedBy,
+          description: description || null
+        });
+
+      if (error) {
+        console.error(error);
+
+        showMessage(
+          `儲存失敗：${error.message}`,
+          "error"
+        );
+      } else {
+        showMessage("支出已成功儲存！", "success");
+
+        expenseForm.reset();
+        travelDateInput.value = todayString;
+
+        await loadExpenses();
+      }
+
+      submitButton.disabled = false;
+      submitButton.textContent = "儲存支出";
+    });
+
+    /*
+     * 重新整理按鈕
+     */
+    refreshButton.addEventListener("click", loadExpenses);
+
+    /*
+     * 頁面一開始載入資料
+     */
+    loadExpenses();
+  </script>
+</body>
+</html>
