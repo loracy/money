@@ -6,7 +6,6 @@
 
   <title>日本旅遊記帳</title>
 
-  <!-- Supabase JavaScript SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -40,6 +39,11 @@
       color: #111827;
     }
 
+    h2 {
+      margin-top: 0;
+      color: #111827;
+    }
+
     .subtitle {
       margin: 0 0 24px;
       text-align: center;
@@ -52,11 +56,6 @@
       background: #ffffff;
       border-radius: 14px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    .card h2 {
-      margin-top: 0;
-      font-size: 20px;
     }
 
     .form-group {
@@ -78,7 +77,7 @@
       border: 1px solid #d1d5db;
       border-radius: 8px;
       font-size: 16px;
-      background: #fff;
+      background: #ffffff;
     }
 
     input:focus,
@@ -130,13 +129,27 @@
       margin: 0;
     }
 
+    .hint {
+      margin-top: 6px;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .exchange-hint {
+      padding: 9px 10px;
+      border-radius: 8px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 14px;
+    }
+
     .submit-button {
       width: 100%;
       padding: 13px;
       border: 0;
       border-radius: 8px;
       background: #2563eb;
-      color: white;
+      color: #ffffff;
       font-size: 17px;
       font-weight: 600;
       cursor: pointer;
@@ -149,6 +162,15 @@
     .submit-button:disabled {
       background: #9ca3af;
       cursor: not-allowed;
+    }
+
+    .secondary-button {
+      margin-top: 12px;
+      background: #4b5563;
+    }
+
+    .secondary-button:hover {
+      background: #374151;
     }
 
     .message {
@@ -166,7 +188,35 @@
       color: #dc2626;
     }
 
-    .expense-list {
+    .summary {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .summary-box {
+      padding: 16px;
+      border-radius: 10px;
+      background: #eff6ff;
+      text-align: center;
+    }
+
+    .summary-label {
+      display: block;
+      margin-bottom: 5px;
+      color: #4b5563;
+      font-size: 14px;
+    }
+
+    .summary-value {
+      color: #1d4ed8;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .expense-list,
+    .settlement-list {
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -202,42 +252,33 @@
       font-size: 14px;
     }
 
-    .empty {
+    .settlement-description {
       color: #6b7280;
-      text-align: center;
-      padding: 20px 0;
+      font-size: 14px;
+      line-height: 1.6;
     }
 
-    .loading {
-      color: #6b7280;
-      text-align: center;
+    .settlement-item {
+      padding: 14px;
+      border-radius: 10px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-weight: 600;
     }
 
-    .summary {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .summary-box {
+    .settlement-balanced {
       padding: 14px;
       border-radius: 10px;
       background: #eff6ff;
-      text-align: center;
-    }
-
-    .summary-label {
-      display: block;
-      margin-bottom: 5px;
-      color: #4b5563;
-      font-size: 14px;
-    }
-
-    .summary-value {
       color: #1d4ed8;
-      font-size: 20px;
-      font-weight: 700;
+      font-weight: 600;
+    }
+
+    .empty,
+    .loading {
+      padding: 20px 0;
+      color: #6b7280;
+      text-align: center;
     }
 
     @media (max-width: 520px) {
@@ -247,11 +288,6 @@
 
       .card {
         padding: 16px;
-      }
-
-      .radio-group,
-      .checkbox-group {
-        grid-template-columns: 1fr 1fr;
       }
 
       .expense-header {
@@ -268,13 +304,14 @@
     <h1>日本旅遊記帳</h1>
     <p class="subtitle">記錄這四天旅遊期間的支出</p>
 
-    <!-- 新增支出表單 -->
+    <!-- 新增支出 -->
     <section class="card">
       <h2>新增支出</h2>
 
       <form id="expenseForm">
         <div class="form-group">
           <label for="travelDate">日期</label>
+
           <input
             type="date"
             id="travelDate"
@@ -289,27 +326,48 @@
 
             <div class="radio-group">
               <label class="radio-item">
-                <input type="radio" name="payer" value="康康" required />
+                <input
+                  type="radio"
+                  name="payer"
+                  value="康康"
+                  required
+                />
                 <span>康康</span>
               </label>
 
               <label class="radio-item">
-                <input type="radio" name="payer" value="阿優" />
+                <input
+                  type="radio"
+                  name="payer"
+                  value="阿優"
+                />
                 <span>阿優</span>
               </label>
 
               <label class="radio-item">
-                <input type="radio" name="payer" value="伯伯" />
+                <input
+                  type="radio"
+                  name="payer"
+                  value="伯伯"
+                />
                 <span>伯伯</span>
               </label>
 
               <label class="radio-item">
-                <input type="radio" name="payer" value="蘿拉" />
+                <input
+                  type="radio"
+                  name="payer"
+                  value="蘿拉"
+                />
                 <span>蘿拉</span>
               </label>
 
               <label class="radio-item">
-                <input type="radio" name="payer" value="Leo" />
+                <input
+                  type="radio"
+                  name="payer"
+                  value="Leo"
+                />
                 <span>Leo</span>
               </label>
             </div>
@@ -318,15 +376,25 @@
 
         <div class="form-group">
           <label for="currency">付款幣別</label>
-          <select id="currency" name="currency" required>
+
+          <select
+            id="currency"
+            name="currency"
+            required
+          >
             <option value="">請選擇幣別</option>
             <option value="JPY">日幣 JPY</option>
             <option value="TWD">台幣 TWD</option>
           </select>
+
+          <div class="hint exchange-hint">
+            日幣 : 台幣 = 1 : 0.21
+          </div>
         </div>
 
         <div class="form-group">
           <label for="amount">付款金額</label>
+
           <input
             type="number"
             id="amount"
@@ -336,6 +404,8 @@
             placeholder="例如：3200"
             required
           />
+
+          <div id="convertedAmount" class="hint"></div>
         </div>
 
         <div class="form-group">
@@ -344,32 +414,56 @@
 
             <div class="checkbox-group">
               <label class="checkbox-item">
-                <input type="checkbox" name="sharedBy" value="康康" />
+                <input
+                  type="checkbox"
+                  name="sharedBy"
+                  value="康康"
+                />
                 <span>康康</span>
               </label>
 
               <label class="checkbox-item">
-                <input type="checkbox" name="sharedBy" value="阿優" />
+                <input
+                  type="checkbox"
+                  name="sharedBy"
+                  value="阿優"
+                />
                 <span>阿優</span>
               </label>
 
               <label class="checkbox-item">
-                <input type="checkbox" name="sharedBy" value="伯伯" />
+                <input
+                  type="checkbox"
+                  name="sharedBy"
+                  value="伯伯"
+                />
                 <span>伯伯</span>
               </label>
 
               <label class="checkbox-item">
-                <input type="checkbox" name="sharedBy" value="蘿拉" />
+                <input
+                  type="checkbox"
+                  name="sharedBy"
+                  value="蘿拉"
+                />
                 <span>蘿拉</span>
               </label>
 
               <label class="checkbox-item">
-                <input type="checkbox" name="sharedBy" value="小威" />
+                <input
+                  type="checkbox"
+                  name="sharedBy"
+                  value="小威"
+                />
                 <span>小威</span>
               </label>
 
               <label class="checkbox-item">
-                <input type="checkbox" name="sharedBy" value="Leo" />
+                <input
+                  type="checkbox"
+                  name="sharedBy"
+                  value="Leo"
+                />
                 <span>Leo</span>
               </label>
             </div>
@@ -378,6 +472,7 @@
 
         <div class="form-group">
           <label for="description">支出說明</label>
+
           <textarea
             id="description"
             name="description"
@@ -397,25 +492,28 @@
       </form>
     </section>
 
-    <!-- 支出統計 -->
+    <!-- 統計 -->
     <section class="card">
       <h2>目前統計</h2>
 
       <div class="summary">
         <div class="summary-box">
-          <span class="summary-label">日幣總額</span>
-          <span id="totalJPY" class="summary-value">¥0</span>
-        </div>
+          <span class="summary-label">
+            目前所有支出總額
+          </span>
 
-        <div class="summary-box">
-          <span class="summary-label">台幣總額</span>
-          <span id="totalTWD" class="summary-value">NT$0</span>
+          <span
+            id="totalTWD"
+            class="summary-value"
+          >
+            NT$0
+          </span>
         </div>
       </div>
 
       <button
         id="refreshButton"
-        class="submit-button"
+        class="submit-button secondary-button"
         type="button"
       >
         重新整理紀錄
@@ -426,42 +524,121 @@
     <section class="card">
       <h2>支出紀錄</h2>
 
-      <div id="expenseList" class="expense-list">
-        <div class="loading">讀取中...</div>
+      <div
+        id="expenseList"
+        class="expense-list"
+      >
+        <div class="loading">
+          讀取中...
+        </div>
+      </div>
+    </section>
+
+    <!-- 結算結果 -->
+    <section class="card">
+      <h2>目前結算結果</h2>
+
+      <p class="settlement-description">
+        以下結果會依據目前所有支出，以及每筆支出的分攤者平均計算。
+        正數代表應收款，負數代表應付款。
+      </p>
+
+      <div
+        id="settlementList"
+        class="settlement-list"
+      >
+        <div class="empty">
+          尚無結算資料
+        </div>
       </div>
     </section>
   </main>
 
   <script>
     /*
-     * 請替換成你的 Supabase 設定
+     * 請將這兩個值換成你自己的 Supabase 設定
      */
-    const SUPABASE_URL = "https://bcgbzbxfxtvkdqxqcjec.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjZ2J6YnhmeHR2a2RxeHFjamVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0NTg2MjIsImV4cCI6MjEwODAzNDYyMn0.dHVpm99-09HvYAmfP_73kDjl66oOUu8bKOMlkuE8XFU";
+    const SUPABASE_URL =
+      "https://bcgbzbxfxtvkdqxqcjec.supabase.co";
 
-    const supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY
-    );
+    const SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjZ2J6YnhmeHR2a2RxeHFjamVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0NTg2MjIsImV4cCI6MjEwODAzNDYyMn0.dHVpm99-09HvYAmfP_73kDjl66oOUu8bKOMlkuE8XFU";
 
-    const expenseForm = document.getElementById("expenseForm");
-    const submitButton = document.getElementById("submitButton");
-    const refreshButton = document.getElementById("refreshButton");
-    const formMessage = document.getElementById("formMessage");
-    const expenseList = document.getElementById("expenseList");
-    const totalJPY = document.getElementById("totalJPY");
-    const totalTWD = document.getElementById("totalTWD");
-    const travelDateInput = document.getElementById("travelDate");
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
+
+
+    /*
+     * 日幣轉台幣匯率
+     * 1 日幣 = 0.21 台幣
+     */
+    const EXCHANGE_RATE = 0.21;
+
+
+    /*
+     * 所有可能參與分攤的人
+     */
+    const MEMBERS = [
+      "康康",
+      "阿優",
+      "伯伯",
+      "蘿拉",
+      "小威",
+      "Leo"
+    ];
+
+
+    const expenseForm =
+      document.getElementById("expenseForm");
+
+    const submitButton =
+      document.getElementById("submitButton");
+
+    const refreshButton =
+      document.getElementById("refreshButton");
+
+    const formMessage =
+      document.getElementById("formMessage");
+
+    const expenseList =
+      document.getElementById("expenseList");
+
+    const settlementList =
+      document.getElementById("settlementList");
+
+    const totalTWD =
+      document.getElementById("totalTWD");
+
+    const travelDateInput =
+      document.getElementById("travelDate");
+
+    const currencyInput =
+      document.getElementById("currency");
+
+    const amountInput =
+      document.getElementById("amount");
+
+    const convertedAmount =
+      document.getElementById("convertedAmount");
+
 
     /*
      * 預設日期為今天
      */
     const today = new Date();
-    const todayString = today.toISOString().split("T")[0];
+
+    const todayString =
+      today.toISOString().split("T")[0];
+
     travelDateInput.value = todayString;
 
+
     /*
-     * 避免支出說明中的特殊字元造成 HTML 問題
+     * 避免特殊字元影響 HTML
      */
     function escapeHtml(value) {
       return String(value ?? "")
@@ -472,6 +649,7 @@
         .replace(/'/g, "&#039;");
     }
 
+
     /*
      * 顯示表單訊息
      */
@@ -480,13 +658,17 @@
       formMessage.className = `message ${type}`;
     }
 
+
     /*
      * 格式化日期
      */
     function formatDate(dateString) {
-      if (!dateString) return "";
+      if (!dateString) {
+        return "";
+      }
 
-      const date = new Date(`${dateString}T00:00:00`);
+      const date =
+        new Date(`${dateString}T00:00:00`);
 
       return date.toLocaleDateString("zh-TW", {
         year: "numeric",
@@ -495,45 +677,125 @@
       });
     }
 
+
     /*
-     * 格式化金額
+     * 格式化台幣
      */
-    function formatAmount(amount, currency) {
-      const number = Number(amount);
-
-      if (currency === "JPY") {
-        return `¥${number.toLocaleString("ja-JP")}`;
-      }
-
-      return `NT$${number.toLocaleString("zh-TW")}`;
+    function formatTWD(amount) {
+      return `NT$${Number(amount).toLocaleString(
+        "zh-TW",
+        {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2
+        }
+      )}`;
     }
 
+
     /*
-     * 載入所有支出紀錄
+     * 將資料庫中的金額轉成台幣
+     *
+     * 新資料會直接儲存成 TWD。
+     * 如果資料庫裡還有之前的 JPY 舊資料，
+     * 這裡也會自動換算成台幣。
+     */
+    function getAmountInTWD(expense) {
+      const amount = Number(expense.amount);
+
+      if (expense.currency === "JPY") {
+        return amount * EXCHANGE_RATE;
+      }
+
+      return amount;
+    }
+
+
+    /*
+     * 即時顯示輸入金額換算結果
+     */
+    function updateConvertedAmount() {
+      const currency = currencyInput.value;
+      const amount = Number(amountInput.value);
+
+      if (!amount || amount <= 0) {
+        convertedAmount.textContent = "";
+        return;
+      }
+
+      if (currency === "JPY") {
+        const converted =
+          amount * EXCHANGE_RATE;
+
+        convertedAmount.textContent =
+          `換算後約為 ${formatTWD(converted)}`;
+      } else if (currency === "TWD") {
+        convertedAmount.textContent =
+          `儲存金額為 ${formatTWD(amount)}`;
+      } else {
+        convertedAmount.textContent = "";
+      }
+    }
+
+
+    currencyInput.addEventListener(
+      "change",
+      updateConvertedAmount
+    );
+
+    amountInput.addEventListener(
+      "input",
+      updateConvertedAmount
+    );
+
+
+    /*
+     * 讀取所有支出紀錄
      */
     async function loadExpenses() {
-      expenseList.innerHTML = `<div class="loading">讀取中...</div>`;
+      expenseList.innerHTML = `
+        <div class="loading">
+          讀取中...
+        </div>
+      `;
 
-      const { data, error } = await supabaseClient
+      const {
+        data,
+        error
+      } = await supabaseClient
         .from("expenses")
         .select("*")
-        .order("travel_date", { ascending: false })
-        .order("created_at", { ascending: false });
+        .order("travel_date", {
+          ascending: false
+        })
+        .order("created_at", {
+          ascending: false
+        });
 
       if (error) {
         console.error(error);
 
         expenseList.innerHTML = `
           <div class="empty">
-            讀取資料失敗：${escapeHtml(error.message)}
+            讀取資料失敗：
+            ${escapeHtml(error.message)}
+          </div>
+        `;
+
+        settlementList.innerHTML = `
+          <div class="empty">
+            無法計算結算結果
           </div>
         `;
 
         return;
       }
 
-      renderExpenses(data || []);
+      const expenses = data || [];
+
+      renderExpenses(expenses);
+      renderSettlement(expenses);
     }
+
 
     /*
      * 顯示支出紀錄
@@ -546,41 +808,49 @@
           </div>
         `;
 
-        updateSummary([]);
+        totalTWD.textContent = "NT$0";
         return;
       }
 
       expenseList.innerHTML = expenses
         .map((expense) => {
-          const sharedBy = Array.isArray(expense.shared_by)
-            ? expense.shared_by.join("、")
-            : "";
+          const sharedBy =
+            Array.isArray(expense.shared_by)
+              ? expense.shared_by.join("、")
+              : "";
 
-          const description = expense.description
-            ? escapeHtml(expense.description)
-            : "未填寫";
+          const description =
+            expense.description
+              ? escapeHtml(expense.description)
+              : "未填寫";
+
+          const amountInTWD =
+            getAmountInTWD(expense);
 
           return `
             <div class="expense-item">
               <div class="expense-header">
                 <div class="expense-title">
-                  ${escapeHtml(formatDate(expense.travel_date))}
-                  · ${escapeHtml(expense.payer)} 付款
+                  ${escapeHtml(
+                    formatDate(expense.travel_date)
+                  )}
+                  ·
+                  ${escapeHtml(expense.payer)}
+                  付款
                 </div>
 
                 <div class="expense-amount">
-                  ${escapeHtml(
-                    formatAmount(expense.amount, expense.currency)
-                  )}
+                  ${formatTWD(amountInTWD)}
                 </div>
               </div>
 
               <div class="expense-detail">
-                幣別：${expense.currency === "JPY" ? "日幣" : "台幣"}
+                顯示金額：台幣
               </div>
 
               <div class="expense-detail">
-                分攤者：${escapeHtml(sharedBy || "未填寫")}
+                分攤者：
+                ${escapeHtml(sharedBy || "未填寫")}
               </div>
 
               <div class="expense-detail">
@@ -591,120 +861,352 @@
         })
         .join("");
 
-      updateSummary(expenses);
+      const total =
+        expenses.reduce((sum, expense) => {
+          return sum + getAmountInTWD(expense);
+        }, 0);
+
+      totalTWD.textContent = formatTWD(total);
     }
 
+
     /*
-     * 更新日幣與台幣總額
+     * 計算每個人的淨額
+     *
+     * 正數：這個人應該收到錢
+     * 負數：這個人應該付錢
      */
-    function updateSummary(expenses) {
-      const jpyTotal = expenses
-        .filter((expense) => expense.currency === "JPY")
-        .reduce((sum, expense) => sum + Number(expense.amount), 0);
+    function calculateBalances(expenses) {
+      const balances = {};
 
-      const twdTotal = expenses
-        .filter((expense) => expense.currency === "TWD")
-        .reduce((sum, expense) => sum + Number(expense.amount), 0);
+      MEMBERS.forEach((member) => {
+        balances[member] = 0;
+      });
 
-      totalJPY.textContent = `¥${jpyTotal.toLocaleString("ja-JP")}`;
-      totalTWD.textContent = `NT$${twdTotal.toLocaleString("zh-TW")}`;
+      expenses.forEach((expense) => {
+        const amount =
+          getAmountInTWD(expense);
+
+        const payer = expense.payer;
+
+        const sharedBy =
+          Array.isArray(expense.shared_by)
+            ? expense.shared_by
+            : [];
+
+        if (
+          !amount ||
+          !payer ||
+          sharedBy.length === 0
+        ) {
+          return;
+        }
+
+        if (balances[payer] === undefined) {
+          balances[payer] = 0;
+        }
+
+        /*
+         * 付款者先增加實際支付的金額
+         */
+        balances[payer] += amount;
+
+        /*
+         * 分攤者平均負擔這筆支出
+         */
+        const eachShare =
+          amount / sharedBy.length;
+
+        sharedBy.forEach((member) => {
+          if (balances[member] === undefined) {
+            balances[member] = 0;
+          }
+
+          balances[member] -= eachShare;
+        });
+      });
+
+      return balances;
     }
 
+
     /*
-     * 儲存新支出
+     * 根據每個人的淨額，
+     * 產生「誰給誰多少錢」
      */
-    expenseForm.addEventListener("submit", async function (event) {
-      event.preventDefault();
+    function calculateSettlements(expenses) {
+      const balances =
+        calculateBalances(expenses);
 
-      const travelDate = document.getElementById("travelDate").value;
-      const currency = document.getElementById("currency").value;
-      const amount = Number(document.getElementById("amount").value);
-      const description = document
-        .getElementById("description")
-        .value
-        .trim();
+      const creditors = [];
+      const debtors = [];
 
-      const payerElement = document.querySelector(
-        'input[name="payer"]:checked'
+      Object.entries(balances).forEach(
+        ([person, balance]) => {
+          const roundedBalance =
+            Math.round(balance * 100) / 100;
+
+          if (roundedBalance > 0.01) {
+            creditors.push({
+              person: person,
+              amount: roundedBalance
+            });
+          } else if (roundedBalance < -0.01) {
+            debtors.push({
+              person: person,
+              amount: Math.abs(roundedBalance)
+            });
+          }
+        }
       );
 
-      const sharedByElements = document.querySelectorAll(
-        'input[name="sharedBy"]:checked'
-      );
+      const settlements = [];
 
-      const payer = payerElement ? payerElement.value : "";
+      let creditorIndex = 0;
+      let debtorIndex = 0;
 
-      const sharedBy = Array.from(sharedByElements).map(
-        (element) => element.value
-      );
+      while (
+        creditorIndex < creditors.length &&
+        debtorIndex < debtors.length
+      ) {
+        const creditor =
+          creditors[creditorIndex];
 
-      if (!travelDate) {
-        showMessage("請選擇日期", "error");
-        return;
-      }
+        const debtor =
+          debtors[debtorIndex];
 
-      if (!payer) {
-        showMessage("請選擇付款人", "error");
-        return;
-      }
+        const paymentAmount =
+          Math.min(
+            creditor.amount,
+            debtor.amount
+          );
 
-      if (!currency) {
-        showMessage("請選擇幣別", "error");
-        return;
-      }
-
-      if (!amount || amount <= 0) {
-        showMessage("請輸入正確的金額", "error");
-        return;
-      }
-
-      if (sharedBy.length === 0) {
-        showMessage("請至少選擇一位分攤者", "error");
-        return;
-      }
-
-      submitButton.disabled = true;
-      submitButton.textContent = "儲存中...";
-      showMessage("");
-
-      const { error } = await supabaseClient
-        .from("expenses")
-        .insert({
-          travel_date: travelDate,
-          payer: payer,
-          currency: currency,
-          amount: amount,
-          shared_by: sharedBy,
-          description: description || null
+        settlements.push({
+          from: debtor.person,
+          to: creditor.person,
+          amount:
+            Math.round(paymentAmount * 100) / 100
         });
 
-      if (error) {
-        console.error(error);
+        creditor.amount -= paymentAmount;
+        debtor.amount -= paymentAmount;
 
-        showMessage(
-          `儲存失敗：${error.message}`,
-          "error"
-        );
-      } else {
-        showMessage("支出已成功儲存！", "success");
+        if (creditor.amount < 0.01) {
+          creditorIndex++;
+        }
 
-        expenseForm.reset();
-        travelDateInput.value = todayString;
-
-        await loadExpenses();
+        if (debtor.amount < 0.01) {
+          debtorIndex++;
+        }
       }
 
-      submitButton.disabled = false;
-      submitButton.textContent = "儲存支出";
-    });
+      return settlements;
+    }
+
 
     /*
-     * 重新整理按鈕
+     * 顯示結算結果
      */
-    refreshButton.addEventListener("click", loadExpenses);
+    function renderSettlement(expenses) {
+      if (expenses.length === 0) {
+        settlementList.innerHTML = `
+          <div class="empty">
+            尚無結算資料
+          </div>
+        `;
+
+        return;
+      }
+
+      const settlements =
+        calculateSettlements(expenses);
+
+      if (settlements.length === 0) {
+        settlementList.innerHTML = `
+          <div class="settlement-balanced">
+            目前已經結清，不需要互相付款。
+          </div>
+        `;
+
+        return;
+      }
+
+      settlementList.innerHTML =
+        settlements
+          .map((settlement) => {
+            return `
+              <div class="settlement-item">
+                ${escapeHtml(settlement.from)}
+                給
+                ${escapeHtml(settlement.to)}
+                ${formatTWD(settlement.amount)}
+              </div>
+            `;
+          })
+          .join("");
+    }
+
 
     /*
-     * 頁面一開始載入資料
+     * 儲存一筆新的支出
+     */
+    expenseForm.addEventListener(
+      "submit",
+      async function (event) {
+        event.preventDefault();
+
+        const travelDate =
+          document.getElementById(
+            "travelDate"
+          ).value;
+
+        const currency =
+          currencyInput.value;
+
+        const inputAmount =
+          Number(amountInput.value);
+
+        const description =
+          document.getElementById(
+            "description"
+          ).value.trim();
+
+        const payerElement =
+          document.querySelector(
+            'input[name="payer"]:checked'
+          );
+
+        const sharedByElements =
+          document.querySelectorAll(
+            'input[name="sharedBy"]:checked'
+          );
+
+        const payer =
+          payerElement
+            ? payerElement.value
+            : "";
+
+        const sharedBy =
+          Array.from(sharedByElements)
+            .map((element) => element.value);
+
+        if (!travelDate) {
+          showMessage(
+            "請選擇日期",
+            "error"
+          );
+          return;
+        }
+
+        if (!payer) {
+          showMessage(
+            "請選擇付款人",
+            "error"
+          );
+          return;
+        }
+
+        if (!currency) {
+          showMessage(
+            "請選擇幣別",
+            "error"
+          );
+          return;
+        }
+
+        if (
+          !inputAmount ||
+          inputAmount <= 0
+        ) {
+          showMessage(
+            "請輸入正確的金額",
+            "error"
+          );
+          return;
+        }
+
+        if (sharedBy.length === 0) {
+          showMessage(
+            "請至少選擇一位分攤者",
+            "error"
+          );
+          return;
+        }
+
+        /*
+         * 如果輸入日幣，先換算成台幣。
+         * 如果輸入台幣，直接使用原金額。
+         */
+        const storedAmount =
+          currency === "JPY"
+            ? inputAmount * EXCHANGE_RATE
+            : inputAmount;
+
+        submitButton.disabled = true;
+        submitButton.textContent = "儲存中...";
+        showMessage("");
+
+        const {
+          error
+        } = await supabaseClient
+          .from("expenses")
+          .insert({
+            travel_date: travelDate,
+            payer: payer,
+
+            /*
+             * 新資料統一以台幣儲存
+             */
+            currency: "TWD",
+            amount: storedAmount,
+            shared_by: sharedBy,
+            description: description || null
+          });
+
+        if (error) {
+          console.error(error);
+
+          showMessage(
+            `儲存失敗：${error.message}`,
+            "error"
+          );
+        } else {
+          showMessage(
+            "支出已成功儲存！",
+            "success"
+          );
+
+          expenseForm.reset();
+
+          travelDateInput.value =
+            todayString;
+
+          convertedAmount.textContent = "";
+
+          /*
+           * 重新讀取所有資料，
+           * 同時更新支出紀錄與結算結果
+           */
+          await loadExpenses();
+        }
+
+        submitButton.disabled = false;
+        submitButton.textContent = "儲存支出";
+      }
+    );
+
+
+    /*
+     * 重新整理
+     */
+    refreshButton.addEventListener(
+      "click",
+      loadExpenses
+    );
+
+
+    /*
+     * 頁面開啟時讀取資料
      */
     loadExpenses();
   </script>
